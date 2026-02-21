@@ -1,0 +1,169 @@
+{
+  "type": "scalar.function",
+  "input_schema": {
+    "type": "object",
+    "description": "A photograph of a cat to evaluate for lighting effectiveness on the subject.",
+    "properties": {
+      "cat_photo": {
+        "type": "image",
+        "description": "A photograph containing a cat as its subject. The function evaluates how well the lighting in this image reveals the cat — its face, fur, and body form — to the viewer."
+      }
+    },
+    "required": [
+      "cat_photo"
+    ]
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Look at this photograph of a cat. How well does the lighting allow you to see the cat's face — its eyes, nose, whiskers, ears, and expression?"
+            },
+            {
+              "$jmespath": "input.cat_photo"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The cat's face is clearly lit and fully legible. I can see both eyes, the nose, the whiskers, and the set of the ears without difficulty. The expression is easy to read. The lighting illuminates the face evenly and naturally — nothing is lost to shadow or blown out by overexposure."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat's face is partially visible. I can make out some facial features, but the lighting has compromised others — parts of the face are lost in shadow, washed out by overexposure, or fragmented by harsh contrast. I get a general sense of the face but not a complete, clear picture."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat's face is not legible. The lighting has failed it — the face is buried in darkness, blown into a featureless bright shape, or so harshly split by contrast that the features cannot be read. I cannot see the cat's eyes, expression, or facial details."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "developer",
+          "content": [
+            {
+              "type": "text",
+              "text": "You are a photo reviewer for an animal shelter. Your job is to assess whether the lighting in each cat photograph reveals the cat's coat clearly and accurately — its fur texture, true colors, and any patterns — so that a potential adopter browsing the listing knows what the cat actually looks like."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.cat_photo"
+            },
+            {
+              "type": "text",
+              "text": "We just took this photo for a cat's adoption listing. Does the lighting show the cat's coat well enough for someone browsing online to know what this cat's fur actually looks like?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "Yes, the lighting shows the coat clearly. The fur texture is visible — I can tell whether it is short, long, smooth, or fluffy. The colors look natural and accurate with no distracting color cast from the light source. Any coat patterns like stripes, spots, or points are distinct and easy to see. An adopter would know exactly what this cat's fur looks like."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Somewhat. The coat is partially visible, but the lighting has compromised some aspects. The colors may have a slight unnatural tint from the light source, the fur texture is hard to read in places, or some patterning is partially lost to shadow or overexposure. An adopter would get a rough idea but not a fully accurate picture of the coat."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "No, the lighting has failed the coat. The fur is either washed out into a featureless bright mass, buried in shadow so the texture and color are lost, or the light source has imposed a strong unnatural cast that distorts the cat's true coloring. An adopter would not get a reliable sense of what this cat's coat looks like from this photo."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Here is a photograph of a cat."
+            },
+            {
+              "$jmespath": "input.cat_photo"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "I can see the photograph. What would you like to know about it?"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Looking at the lighting in this photo — can you perceive the cat as a complete, whole animal? Is its body distinguishable from the background, and can you make out the cat's overall posture and physical form?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The cat reads as a complete, whole subject in the photograph. The lighting clearly separates the cat's body from the background, and I can see the full posture and physical form of the animal — its size, proportions, and the way its limbs are arranged. The cat is a distinct, coherent creature within the frame."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is partially perceivable as a whole. Some areas of the body are clearly lit, but other parts merge into the background or are lost to shadow or overexposure. I can get a general sense of the cat's posture and shape, but the animal does not fully read as a complete, unbroken subject."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat does not read as a whole subject. The lighting fragments the body into disconnected patches of visibility, or the cat merges so thoroughly into the background that its form is lost. I cannot trace the outline of the animal or understand its posture — the cat is more of an abstraction than a visible, complete creature."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    }
+  ],
+  "description": "Scores how well lighting in a cat photograph reveals the subject. Evaluates facial legibility (eyes, whiskers, expression), fur and color fidelity (texture, true colors, patterns), and body form wholeness (posture, subject-background separation). Rewards clarity over artistry — plain light that shows the cat outscores drama that obscures it."
+}
